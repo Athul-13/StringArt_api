@@ -8,6 +8,7 @@ app.use(cors({
     origin:'http://localhost:5173',
     credentials: true
 }));
+app.use(express.raw({ type: 'image/*', limit: '10mb' }));
 app.use(express.json());
 
 app.listen(PORT, () => {
