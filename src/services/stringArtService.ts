@@ -12,7 +12,7 @@ export interface StringArtOutput {
 
 export class StringArtService {
     
-    private calculateLineScore(startX: number, endX: number, startY: number, endY: number, data: Buffer, info: sharp.OutputInfo): number {
+    private calculateLineScore(startX: number, startY: number, endX: number, endY: number, data: Buffer, info: sharp.OutputInfo): number {
         let score = 0;
         const {width,channels} = info;
         const dx = Math.abs(endX - startX);
@@ -80,19 +80,22 @@ export class StringArtService {
         }
 
         // 2. The Greedy Algorithm Loop
-        let currentNailIndex = 0; 
+        let currentNailIndex = 0;
+        let previousNailIndex = -1; // Added a new variable to track the previous nail
         const stringArtLines: [number, number][] = [];
         const numberOfLines = 4000;
 
         for (let i = 0; i < numberOfLines; i++) {
-            let bestScore = Infinity; 
+            let bestScore = Infinity;
             let bestNailIndex = -1;
 
             // Iterate through all other nails to find the best one
             for (let nextNailIndex = 0; nextNailIndex < numberOfNails; nextNailIndex++) {
-                if (nextNailIndex === currentNailIndex) continue;
+                // FIX: Now we skip the current nail AND the previous nail
+                if (nextNailIndex === currentNailIndex || nextNailIndex === previousNailIndex) {
+                    continue;
+                }
 
-                // Calculate the score for this potential line.
                 const score = this.calculateLineScore(
                     nails[currentNailIndex].x,
                     nails[currentNailIndex].y,
@@ -123,8 +126,9 @@ export class StringArtService {
                 info
             );
             
-            // Move to the next best nail
-            currentNailIndex = bestNailIndex;
+            // Update the state for the next iteration
+            previousNailIndex = currentNailIndex; // Store the current nail as previous
+            currentNailIndex = bestNailIndex; // Move to the new best nail
         }
 
         return { lines: stringArtLines, nails: nails };
