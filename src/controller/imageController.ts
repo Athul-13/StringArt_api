@@ -23,7 +23,7 @@ export class ImageController {
             const rawBuffer = processedImage.rawBuffer;
             const rawInfo = processedImage.rawInfo;
 
-            const stringArtResult = this.stringArtService.generate(rawBuffer, rawInfo);
+            const stringArtResult = await this.stringArtService.generateFromProcessedData(processedImage)
 
             res.status(200).json({
                 stringArt: stringArtResult,
